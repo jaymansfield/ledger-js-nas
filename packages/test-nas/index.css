@@ -1,0 +1,13 @@
+body {
+  font-family: open sans,helvetica neue,Helvetica,arial,sans-serif;
+  font-size: 14px;
+  color: #000;
+}
+
+.result {
+  color: #000;
+}
+
+.error {
+  color: red;
+}
