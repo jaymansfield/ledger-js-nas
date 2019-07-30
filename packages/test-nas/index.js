@@ -2,11 +2,16 @@ import "./index.css";
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import "babel-polyfill";
+import { listen } from "@ledgerhq/logs";
 import Transport from "@ledgerhq/hw-transport-webusb";
 import NebulasLedger from "@ledgerhq/hw-app-nas";
 import Nebulas from "nebulas";
 
 var Neb = Nebulas.Neb;
+
+listen(e => {
+    console.log(`${e.type}: ${e.message}`);
+});
 
 class App extends Component {
     constructor (props) {
@@ -20,7 +25,7 @@ class App extends Component {
     createNebulasLedger = async (timeout: number): NebulasLedger => {
         timeout = timeout !== undefined ? timeout : 30000;
         const transport = await Transport.create();
-        transport.setDebugMode(true);
+        //transport.setDebugMode(true);
         transport.setExchangeTimeout(timeout);
         return new NebulasLedger(transport);
     };

@@ -9,9 +9,10 @@
   },
   "dependencies": {
     "@ledgerhq/hw-app-nas": "^1.0.0",
-    "@ledgerhq/hw-transport-node-hid": "^4.48.0",
-    "@ledgerhq/hw-transport-u2f": "^4.48.0",
-    "@ledgerhq/hw-transport-webusb": "^4.48.0",
+    "@ledgerhq/hw-transport-node-hid": "^4.68.2",
+    "@ledgerhq/hw-transport-u2f": "^4.68.2",
+    "@ledgerhq/hw-transport-webusb": "^4.68.2",
+    "@ledgerhq/logs": "^4.68.2",
     "budo": "^11.0.1",
     "nebulas": "^0.5.6",
     "react": "^16.8.6",

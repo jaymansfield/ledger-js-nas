@@ -11,7 +11,7 @@
   "main": "lib/nebulasledger.js",
   "license": "Apache-2.0",
   "dependencies": {
-    "@ledgerhq/hw-transport": "^4.48.0"
+    "@ledgerhq/hw-transport": "^4.68.2"
   },
   "devDependencies": {
     "flow-bin": "^0.68.0",
