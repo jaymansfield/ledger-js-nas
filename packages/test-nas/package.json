@@ -8,22 +8,22 @@
     "test": "budo --ssl -d dist"
   },
   "dependencies": {
-    "@ledgerhq/hw-app-btc": "^4.49.2",
     "@ledgerhq/hw-app-nas": "^1.0.0",
+    "@ledgerhq/hw-transport-node-hid": "^4.48.0",
     "@ledgerhq/hw-transport-u2f": "^4.48.0",
-    "@ledgerhq/hw-transport-node-hid" : "^4.48.0",
-    "@ledgerhq/hw-transport-webusb" : "^4.48.0",
-    "nebulas" : "^0.5.6",
-    "react": "^16.2.0",
-    "react-dom": "^16.2.0",
-    "budo": "^11.0.1"
+    "@ledgerhq/hw-transport-webusb": "^4.48.0",
+    "budo": "^11.0.1",
+    "nebulas": "^0.5.6",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
   },
   "devDependencies": {
+    "babel-core": "^6.26.3",
     "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-preset-react-app": "^3.1.1",
-    "cross-env": "^5.1.4",
-    "parcel-bundler": "^1.6.2"
+    "babel-preset-react-app": "^9.0.0",
+    "cross-env": "^5.2.0",
+    "parcel-bundler": "^1.12.3"
   },
   "private": true,
-  "version": "4.14.0"
+  "version": "4.36.0"
 }
