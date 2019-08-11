@@ -30,7 +30,7 @@ class App extends Component {
         return new NebulasLedger(transport);
     };
 
-    clear = () => {
+    onClear = () => {
         this.setState({ result: null });
         this.setState({ error: null });
     };
@@ -40,19 +40,12 @@ class App extends Component {
         this.setState({ result: "Please wait.." });
     };
 
-    hexToBase64 = (hexString: string) => {
-        return btoa(hexString.match(/\w{2}/g).map(function(a) {
-            return String.fromCharCode(parseInt(a, 16));
-        }).join(""));
-    };
-
-
     onGetAppConfiguration = async() => {
         try {
             this.showProcessing();
             const nebulasLedger = await this.createNebulasLedger();
             const { majorVersion, minorVersion, patchVersion} = await nebulasLedger.getAppConfiguration();
-            this.setState({result: "[majorVer=" + majorVersion + "],[minorVer=" + minorVersion + "],[patchVer=" + patchVersion + "]"});
+            this.setState({result: "[majorVer=" + majorVersion + "]\n[minorVer=" + minorVersion + "]\n[patchVer=" + patchVersion + "]"});
         } catch (error) {
             this.setState({error});
         }
@@ -63,7 +56,7 @@ class App extends Component {
             this.showProcessing();
             const nebulasLedger = await this.createNebulasLedger();
             const { publicKey, compressedPublicKey, address } = await nebulasLedger.getAddress("44'/2718'/0'");
-            this.setState({ result: "[publicKey=" + publicKey.toString("hex") + "],[compressedPublicKey=" + compressedPublicKey.toString("hex") + "],[address=" + address + "]" });
+            this.setState({ result: "[publicKey=" + publicKey.toString("hex") + "]\n[compressedPublicKey=" + compressedPublicKey.toString("hex") + "]\n[address=" + address + "]" });
         } catch (error) {
             this.setState({ error });
         }
@@ -74,18 +67,21 @@ class App extends Component {
             this.showProcessing();
             const nebulasLedger = await this.createNebulasLedger(90000);
 
+            var neb = new Neb();
+
             const transaction = {
-                chainID: 1,
-                from: "n1crPx23HuZUGD6AiUP5z3AgDJg35jP81BZ",
-                to: "n1crPx23HuZUGD6AiUP5z3AgDJg35jP81BZ",
-                value: 1000000,
-                nonce: 12,
-                gasPrice: 1500000,
-                gasLimit: 2500000
+                chainID: parseInt(document.getElementById("txChainID").value),
+                from: document.getElementById("txFrom").value,
+                to: document.getElementById("txTo").value,
+                value: neb.nasToBasic(parseFloat(document.getElementById("txValue").value)),
+                nonce: parseInt(document.getElementById("txNonce").value),
+                gasPrice: parseInt(document.getElementById("txGasPrice").value),
+                gasLimit: parseInt(document.getElementById("txGasLimit").value)
             };
 
             const { signedTransaction, hash } = await nebulasLedger.signTransaction("44'/2718'/0'", transaction);
-            this.setState({ result: "[signedTransaction=" + signedTransaction.toString() + "],[hash=" + signedTransaction.toProtoString() + "]"});
+
+            this.setState({ result: "[signedTransaction=" + signedTransaction.toString() + "]\n[raw=" + signedTransaction.toProtoString() + "]"});
         } catch (error) {
             this.setState({ error });
         }
@@ -96,22 +92,28 @@ class App extends Component {
             this.showProcessing();
             const nebulasLedger = await this.createNebulasLedger(90000);
 
+            var neb = new Neb();
+
             const transaction = {
-                chainID: 1001,
-                from: "n1UFKmFRxUgNgnHt9nWuKGYFZsxbcmSLELv",
-                to: "n1W9yYz2gdD92Z1hF4AGGcumEfm3dfbEEKz",
-                value: 1000000,
-                nonce: 12,
-                gasPrice: 1500000,
-                gasLimit: 2500000
+                chainID: parseInt(document.getElementById("txChainID").value),
+                from: document.getElementById("txFrom").value,
+                to: document.getElementById("txTo").value,
+                value: neb.nasToBasic(parseFloat(document.getElementById("txValue").value)),
+                nonce: parseInt(document.getElementById("txNonce").value),
+                gasPrice: parseInt(document.getElementById("txGasPrice").value),
+                gasLimit: parseInt(document.getElementById("txGasLimit").value)
             };
 
             const { signedTransaction } = await nebulasLedger.signTransaction("44'/2718'/0'", transaction);
 
-            var neb = new Neb();
-            neb.setRequest(new Nebulas.HttpRequest("https://testnet.nebulas.io"));
+            if(transaction.chainID == 1) {
+                neb.setRequest(new Nebulas.HttpRequest("https://mainnet.nebulas.io"));
+            }
+            else {
+                neb.setRequest(new Nebulas.HttpRequest("https://testnet.nebulas.io"));
+            }
             neb.api.sendRawTransaction( {data: signedTransaction.toProtoString()} ).then(function(hash) {
-                this.setState({ result: "[signedTransaction=" + signedTransaction.toString() + "],[encodedTransaction=" + signedTransaction.toProtoString() + "],[hash=" + hash + "]"});
+                this.setState({ result: "[signedTransaction=" + signedTransaction.toString() + "]\n[raw=" + signedTransaction.toProtoString() + "]\n[txHash=" + hash + "]"});
             });
         } catch (error) {
             this.setState({ error });
@@ -121,31 +123,68 @@ class App extends Component {
     render() {
         const { result, error } = this.state;
         return (
-            <div>
+            <div className="container">
                 <h1>Ledger NAS Tests</h1>
+                <hr/>
 
-                <button className="action" onClick={this.onGetAppConfiguration}>getAppConfiguration()</button>
-                <p></p>
+                <table>
+                    <tr>
+                        <td className="testName">Get App Version</td>
+                        <td className="testDesc"><button className="action" onClick={this.onGetAppConfiguration}>getAppConfiguration()</button></td>
+                    </tr>
+                    <tr>
+                        <td className="testName">Get Address</td>
+                        <td className="testDesc"><button className="action" onClick={this.onGetAddress}>getAddress()</button></td>
+                    </tr>
 
-                <button className="action" onClick={this.onGetAddress}>getAddress()</button>
-                <p></p>
+                    <tr>
+                        <td className="testName">Sign Transaction</td>
+                        <td className="testDesc">
+                            <p>Confirm correct attributes are displayed on ledger after clicking sign button.</p>
 
-                <button className="action" onClick={this.onSignTransaction}>signTransaction()</button>
-                <p>Confirm to=n1crPx23HuZUGD6AiUP5z3AgDJg35jP81BZ, amount=0.1, gasPrice=1500000, gasLimit=2500000  is displayed on Ledger.</p>
+                            <p></p>
 
-                <button className="action" onClick={this.onSignAndSubmitTransaction}>signAndSubmitTransaction()</button>
-                <p>Confirm to=n1crPx23HuZUGD6AiUP5z3AgDJg35jP81BZ, amount=0.1, gasPrice=1500000, gasLimit=2500000  is displayed on Ledger.</p>
+                            <table>
+                                <tr>
+                                    <td>From:</td><td><input type="text" id="txFrom" defaultValue="n1JkACZHibDC1FV8Pi817pLe9g7GTLseZ1G" /></td>
+                                </tr>
+                                <tr>
+                                    <td>To:</td><td><input type="text" id="txTo" defaultValue="n1JkACZHibDC1FV8Pi817pLe9g7GTLseZ1G" /></td>
+                                </tr>
+                                <tr>
+                                    <td>Value:</td><td><input type="text" id="txValue" defaultValue="0.0001" /> NAS</td>
+                                </tr>
+                                <tr>
+                                    <td>Nonce:</td><td><input type="text" id="txNonce" defaultValue="1" /></td>
+                                </tr>
+                                <tr>
+                                    <td>GasPrice:</td><td><input type="text" id="txGasPrice" defaultValue="20000000000" /></td>
+                                </tr>
+                                <tr>
+                                    <td>GasLimit:</td><td><input type="text" id="txGasLimit" defaultValue="200000" /></td>
+                                </tr>
+                                <tr>
+                                    <td>ChainID:</td><td><input type="text" id="txChainID" defaultValue="1"/></td>
+                                </tr>
+                            </table>
 
-                <p>
-                    RESULT: <button className="action" onClick={this.onClear}>clear</button>
+                            <p></p>
+
+                            <button className="action" onClick={this.onSignTransaction}>signTransaction()</button>
+                        </td>
+                    </tr>
+                </table>
+
+                <h2>Test Result: <button className="action" onClick={this.onClear}>clear</button></h2>
+                <div className="resultBox">
                     <p>
                         {error ? (
                             <code className="error">{error.toString()}</code>
                         ) : (
-                            <code className="result">{result}</code>
+                            <pre>{result}</pre>
                         )}
                     </p>
-                </p>
+                </div>
             </div>
         );
     };

@@ -4,6 +4,7 @@ import type Transport from "@ledgerhq/hw-transport";
 import Nebulas from "nebulas";
 var Account = Nebulas.Account;
 var Transaction = Nebulas.Transaction;
+var CryptoUtils = Nebulas.CryptoUtils;
 
 export default class NebulasLedger {
   transport: Transport<*>;
@@ -26,7 +27,8 @@ export default class NebulasLedger {
     let buffer = new Buffer(1 + 4 * paths.length);
     buffer[0] = paths.length;
     paths.forEach((element, index) => {
-      buffer.writeUInt32BE(element, 1 + 4 * index);
+      element |= 0x80000000;
+      buffer.writeInt32LE(element, 1 + 4 * index);
     });
     return buffer;
   }
@@ -90,23 +92,18 @@ export default class NebulasLedger {
       if (end > rawTx.length) {
         end = rawTx.length;
       }
-      console.log("Chunk::" + i + ", " + end);
-      console.log("Chunk::" + rawTx.slice(i, end))
       chunks.push(rawTx.slice(i, end));
     }
 
     let response;
     return foreach(chunks, (data, i) =>
       this.transport.send(0x6e, 0x02, i + 1, chunks.length, data).then(apduResponse => {
-        console.log("Response:" + apduResponse);
         response = apduResponse;
       })
     ).then(() => {
-      console.log("Response;"+ response);
-      console.log("Response;"+ response.toString("hex"));
-      console.log("Response;"+ response.toString("ascii"));
+      console.log("Response:"+ response.toString("hex"));
 
-      tx.sign = hexToBase64(response.slice(0, 32 + 32 + 1).toString("hex"));
+      tx.sign = CryptoUtils.toBuffer(response.slice(0, 32 + 32 + 1));
 
       let result = {};
       result.signedTransaction = tx;

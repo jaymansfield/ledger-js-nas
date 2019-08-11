@@ -4,10 +4,22 @@ body {
   color: #000;
 }
 
-.result {
-  color: #000;
-}
-
 .error {
   color: red;
 }
+
+.container {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.resultBox {
+  border: 1px solid #000;
+  padding: 20px;
+  overflow-x: scroll;
+}
+
+td { padding: 5px 10px; }
+
+.testName { padding: 10px; font-weight: bold; width: 150px; }
+.testDesc { padding: 10px; }
