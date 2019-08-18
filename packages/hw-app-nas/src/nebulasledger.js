@@ -86,7 +86,26 @@ export default class NebulasLedger {
 
     let chunks = [];
     chunks.push(this.pathToBuffer(path));
-    let rawTx = new Buffer(tx.toString());
+
+    var txObj = tx.toString();
+
+    var o = JSON.parse(txObj)
+    if(o.data != null) {
+      var protobuf = require('protobufjs');
+      var root = protobuf.Root.fromJSON(require("../lib/transaction.json"));
+      var Data = root.lookup("corepb.Data");
+      var err = Data.verify(tx.data);
+      if (err) {
+        throw new Error(err);
+      }
+      var data = Data.create(tx.data);
+      o.dataBuffer = new Buffer(Data.encode(data).finish()).toString("hex");
+    }
+    txObj = JSON.stringify(o);
+
+    console.log(txObj);
+
+    let rawTx = new Buffer(txObj);
     for (let i = 0; i < rawTx.length; i += maxChunkSize) {
       let end = i + maxChunkSize;
       if (end > rawTx.length) {

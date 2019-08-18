@@ -18,3 +18,7 @@ Javascript client library for Nebulas Ledger applications.
 
 
 1. Access "https://[IP]:9966" on web browser and test
+
+## Package Lib
+
+    $ browserify neb-ledger-usb.js -p esmify -s NebLedgerUSB -o neb-ledger-usb-packed.js

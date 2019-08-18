@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "BABEL_ENV=production && lerna run build",
+    "build": "BABEL_ENV=production && cp packages/hw-app-nas/src/transaction.json packages/hw-app-nas/lib && lerna run build",
     "clean": "rm -rf node_modules packages/*/node_modules/ packages/*/flow-typed/ packages/*/lib flow-typed && lerna run clean",
     "test": "cd packages/test-nas && yarn run test",
     "watch": "lerna run --parallel watch"
