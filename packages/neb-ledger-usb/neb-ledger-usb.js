@@ -27,7 +27,7 @@ function NebLedgerUSB() {
         0x6984: 'Data is invalid',
         0x6985: 'Conditions not satisfied',
         0x6986: 'Transaction rejected',
-        0x6A80: 'Bad key handle',
+        0x6A80: 'Data element is too long',
         0x6B00: 'Invalid P1/P2',
         0x6D00: 'Instruction not supported',
         0x6E00: 'Nebulas Ledger app does not seem to be open',
@@ -38,7 +38,7 @@ function NebLedgerUSB() {
     function errorCodeToString(err) {
         if (err.statusCode in ERROR_DESCRIPTION)
         {
-            err.message = ERROR_DESCRIPTION[err.statusCode];
+            err.message = ERROR_DESCRIPTION[err.statusCode]; // get error message based off status code
         }
         return err;
     }

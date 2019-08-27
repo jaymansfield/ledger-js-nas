@@ -100,8 +100,25 @@ export default class NebulasLedger {
       }
       var data = Data.create(tx.data);
       o.dataBuffer = new Buffer(Data.encode(data).finish()).toString("hex");
+
+      // reduce size of json to make it easier on the ledger device
+      delete o['data'];
+      delete o['hash'];
+      delete o['sign'];
+      delete o['alg'];
     }
     txObj = JSON.stringify(o);
+
+    // further reduce size of json to make it easier on the ledger device
+    txObj = txObj.replace("\"chainID\":", "\"c\":");
+    txObj = txObj.replace("\"from\":", "\"f\":");
+    txObj = txObj.replace("\"to\":", "\"a\":");
+    txObj = txObj.replace("\"value\":", "\"v\":");
+    txObj = txObj.replace("\"nonce\":", "\"n\":");
+    txObj = txObj.replace("\"timestamp\":", "\"t\":");
+    txObj = txObj.replace("\"gasPrice\":", "\"p\":");
+    txObj = txObj.replace("\"gasLimit\":", "\"l\":");
+    txObj = txObj.replace("\"dataBuffer\":", "\"d\":");
 
     console.log(txObj);
 
@@ -115,6 +132,7 @@ export default class NebulasLedger {
     }
 
     let response;
+
     return foreach(chunks, (data, i) =>
       this.transport.send(0x6e, 0x02, i + 1, chunks.length, data).then(apduResponse => {
         response = apduResponse;
@@ -122,7 +140,21 @@ export default class NebulasLedger {
     ).then(() => {
       console.log("Response:"+ response.toString("hex"));
 
-      tx.sign = CryptoUtils.toBuffer(response.slice(0, 32 + 32 + 1));
+      let rLen = response[3];
+      let sLen = response[4 + rLen + 1];
+
+      let rOffset = (rLen == 33) ? 1 : 0;
+      let sOffset = (sLen == 33) ? 1 : 0;
+
+      const sigR = response.slice(4 + rOffset, 4 + rOffset + 32);
+      console.log("R:" + sigR.toString("hex"));
+
+      const sigS = response.slice(4 + rLen + 2 + sOffset, 4 + rLen + 2 + sOffset + 32)
+      console.log("S:" + sigS.toString("hex"));
+
+      const sigV = CryptoUtils.toBuffer(response[0]);
+
+      tx.sign = Buffer.concat([sigR, sigS, sigV]);
 
       let result = {};
       result.signedTransaction = tx;
