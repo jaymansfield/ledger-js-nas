@@ -67,6 +67,26 @@ export default class NebulasLedger {
     });
   }
 
+  verifyAddress(
+      path: string
+  ): Promise<{
+      publicKey: string,
+      compressedPublicKey: string,
+      address: string
+  }> {
+    return this.transport.send(0x6e, 0x03, 0x00, 0x00, this.pathToBuffer(path)).then(response => {
+      let y = response.slice(33, 65);
+      let z = new Buffer.from([2 + (y[y.length - 1] & 1)]);
+
+      let account = Account.fromPubKey(Buffer.concat([z, response.slice(1, 33)]));
+      let result = {};
+      result.publicKey = response;
+      result.compressedPublicKey = account.getPublicKey();
+      result.address = account.getAddressString();
+      return result;
+    });
+  }
+
   signTransaction(
     path: string,
     transaction: object

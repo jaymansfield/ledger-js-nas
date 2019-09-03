@@ -26,7 +26,7 @@ function NebLedgerUSB() {
         0x6983: 'Output buffer too small',
         0x6984: 'Data is invalid',
         0x6985: 'Conditions not satisfied',
-        0x6986: 'Transaction rejected',
+        0x6986: 'Rejected by user',
         0x6A80: 'Data element is too long',
         0x6B00: 'Invalid P1/P2',
         0x6D00: 'Instruction not supported',
@@ -65,6 +65,16 @@ function NebLedgerUSB() {
         try {
             const nebulasLedger = await this.createNebulasLedger();
             var response = await nebulasLedger.getAddress(path);
+            callback(response);
+        } catch (error) {
+            callback(new Error(errorCodeToString(error)));
+        }
+    };
+
+    this.verifyAddress = async (callback, path) => {
+        try {
+            const nebulasLedger = await this.createNebulasLedger(90000);
+            var response = await nebulasLedger.verifyAddress(path);
             callback(response);
         } catch (error) {
             callback(new Error(errorCodeToString(error)));
